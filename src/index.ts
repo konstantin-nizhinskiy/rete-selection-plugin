@@ -10,9 +10,6 @@ export interface Cfg {
   selectionArea?: {
     className?: string;
   };
-  selectionMode?: {
-    className?: string;
-  };
   enabled?: boolean;
   mode?: [string, string];
 }
@@ -57,16 +54,16 @@ function install(editor: NodeEditor, params: Cfg) {
 
   const cfg = params ?? {}
 
-  // #region 插件状态
+  // #region Статус плагина
   let accumulate = false
   let pressing = false
   const selection: [Position, Position] = [{ x: 0, y: 0 }, { x: 0, y: 0 }]
   // #endregion
 
-  // 画布对象
+  // Объект холста
   const canvas = editor.view.container.firstElementChild as HTMLDivElement
 
-  // #region 获取框选范围内节点
+  // #region Получить узлы в диапазоне выбора кадра
   const getNodesFromSelectionArea = () => {
     if (!cfg.enabled) {
       return []
@@ -76,7 +73,7 @@ function install(editor: NodeEditor, params: Cfg) {
     const areaStart = applyTransform(translateX, translateY, scale, { ...selection[0] })
     const areaEnd = applyTransform(translateX, translateY, scale, { ...selection[1] })
 
-    // 调整点的顺序
+    // Отрегулируйте порядок точек
     if (areaEnd.x < areaStart.x) {
       const num = areaStart.x
       areaStart.x = areaEnd.x
@@ -95,7 +92,7 @@ function install(editor: NodeEditor, params: Cfg) {
   }
   // #endregion
 
-  // #region 创建选区
+  // #region Создать выбор
   const selectionArea = document.createElement('div')
   selectionArea.classList.add('selection-area')
   selectionArea.style.position = 'absolute'
@@ -103,36 +100,21 @@ function install(editor: NodeEditor, params: Cfg) {
   selectionArea.style.pointerEvents = 'none'
   cleanSelectionArea(selectionArea)
 
-  const selectionMode = document.createElement('div')
-  selectionMode.classList.add('selection-mode')
-  selectionMode.style.position = 'absolute'
-  selectionMode.style.pointerEvents = 'none'
-  selectionMode.innerText = (cfg.mode ?? [])[0] ?? '单选模式'
-  // #endregion
 
-  // #region 外观定制
+  // #region Настройка внешнего вида
   {
     const className = cfg.selectionArea?.className
     if (className) {
-      selectionMode.classList.add(...className.split(' '))
+      selectionArea.classList.add(...className.split(' '))
     } else {
       selectionArea.style.backgroundColor = '#E3F2FD'
       selectionArea.style.border = 'solid 1px #42A5F5'
       selectionArea.style.borderRadius = '4px'
     }
   }
-  {
-    const className = cfg.selectionMode?.className
-    if (className) {
-      selectionMode.classList.add(...className.split(' '))
-    } else {
-      selectionMode.style.top = '16px'
-      selectionMode.style.left = '16px'
-    }
-  }
   // #endregion
 
-  // #region 选择事件
+  // #region Выберите мероприятие
   const handleMouseDown = (e: MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -150,13 +132,13 @@ function install(editor: NodeEditor, params: Cfg) {
 
     pressing = true
 
-    // 屏蔽其它元素的鼠标事件
+    // Защищайте события мыши от других элементов
     canvas.style.pointerEvents = 'none'
     Array.from(canvas.querySelectorAll('path')).forEach(item => {
       (item as SVGElement).style.pointerEvents = 'none'
     })
 
-    // 初始化相关状态
+    // Инициализировать связанное состояние
     cleanSelectionArea(selectionArea)
     selection[0] = { x: e.offsetX, y: e.offsetY }
     selection[1] = { x: e.offsetX, y: e.offsetY }
@@ -170,7 +152,7 @@ function install(editor: NodeEditor, params: Cfg) {
 
     pressing = false
 
-    // 恢复其它元素的鼠标事件
+    // Восстановить события мыши других элементов
     canvas.style.pointerEvents = 'auto'
     Array.from(canvas.querySelectorAll('path')).forEach(item => {
       (item as SVGElement).style.pointerEvents = 'auto'
@@ -205,9 +187,9 @@ function install(editor: NodeEditor, params: Cfg) {
     if (!pressing) {
       return
     }
-    if (editor.selected.list.length > 0) {
+  /*  if (editor.selected.list.length > 0) {
       return
-    }
+    }*/
 
     selection[1] = { x: e.offsetX, y: e.offsetY }
 
@@ -224,15 +206,14 @@ function install(editor: NodeEditor, params: Cfg) {
       position.y = selection[1].y
     }
 
-    // 未选中任节点的情况下才需要绘制框选范围
+    // Если какой-либо узел не выбран, необходимо нарисовать диапазон выбора кадра.
     drawSelectionArea(selectionArea, position, size)
   }
   // #endregion
 
-  // #region 初始化样式和事件
+  // #region Инициализировать стили и события
   editor.view.container.style.position = 'relative'
   editor.view.container.appendChild(selectionArea)
-  editor.view.container.appendChild(selectionMode)
 
   editor.view.container.addEventListener('mousedown', handleMouseDown)
   editor.view.container.addEventListener('mouseup', handleMouseUp)
@@ -241,7 +222,7 @@ function install(editor: NodeEditor, params: Cfg) {
 
   editor.on('destroy', () => {
     editor.view.container.removeChild(selectionArea)
-    editor.view.container.removeChild(selectionMode)
+
 
     editor.view.container.removeEventListener('mousedown', handleMouseDown)
     editor.view.container.removeEventListener('mouseup', handleMouseUp)
@@ -256,14 +237,14 @@ function install(editor: NodeEditor, params: Cfg) {
   editor.on('keydown', (e) => {
     if (e.ctrlKey) {
       accumulate = true
-      selectionMode.innerText = (cfg.mode ?? [])[1] ?? '多选模式'
+      editor.view.container.classList.add("multi-select")
     }
   })
 
   editor.on('keyup', () => {
     if (accumulate) {
       accumulate = false
-      selectionMode.innerText = (cfg.mode ?? [])[0] ?? '单选模式'
+      editor.view.container.classList.remove("multi-select")
     }
   })
 
