@@ -215,9 +215,8 @@ function install(editor, params) {
   // #region Выберите мероприятие
 
   var handleMouseDown = function handleMouseDown(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
+    /*    e.preventDefault()
+        e.stopPropagation()*/
     if (!cfg.enabled) {
       return;
     }
@@ -227,6 +226,10 @@ function install(editor, params) {
     }
 
     if (!e.ctrlKey) {
+      return;
+    }
+
+    if (editor.selected.list.length > 0) {
       return;
     }
 
@@ -249,8 +252,8 @@ function install(editor, params) {
   };
 
   var handleMouseUp = function handleMouseUp(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    /*    e.preventDefault()
+        e.stopPropagation()*/
     var selectedNodes = getNodesFromSelectionArea();
     pressing = false; // Восстановить события мыши других элементов
 
@@ -282,9 +285,8 @@ function install(editor, params) {
   };
 
   var handleMouseMove = function handleMouseMove(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
+    /*   e.preventDefault()
+       e.stopPropagation()*/
     if (!cfg.enabled) {
       return;
     }
@@ -296,10 +298,10 @@ function install(editor, params) {
     if (!pressing) {
       return;
     }
-    /*  if (editor.selected.list.length > 0) {
-        return
-      }*/
 
+    if (editor.selected.list.length > 0) {
+      return;
+    }
 
     selection[1] = {
       x: e.offsetX,

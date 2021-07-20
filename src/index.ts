@@ -116,8 +116,8 @@ function install(editor: NodeEditor, params: Cfg) {
 
   // #region Выберите мероприятие
   const handleMouseDown = (e: MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+/*    e.preventDefault()
+    e.stopPropagation()*/
 
     if (!cfg.enabled) {
       return
@@ -127,6 +127,9 @@ function install(editor: NodeEditor, params: Cfg) {
       return
     }
     if (!e.ctrlKey) {
+      return
+    }
+    if (editor.selected.list.length > 0) {
       return
     }
 
@@ -145,8 +148,8 @@ function install(editor: NodeEditor, params: Cfg) {
   }
 
   const handleMouseUp = (e: MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+/*    e.preventDefault()
+    e.stopPropagation()*/
 
     const selectedNodes = getNodesFromSelectionArea()
 
@@ -175,8 +178,8 @@ function install(editor: NodeEditor, params: Cfg) {
   }
 
   const handleMouseMove = (e: MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+ /*   e.preventDefault()
+    e.stopPropagation()*/
 
     if (!cfg.enabled) {
       return
@@ -187,9 +190,9 @@ function install(editor: NodeEditor, params: Cfg) {
     if (!pressing) {
       return
     }
-  /*  if (editor.selected.list.length > 0) {
+    if (editor.selected.list.length > 0) {
       return
-    }*/
+    }
 
     selection[1] = { x: e.offsetX, y: e.offsetY }
 
